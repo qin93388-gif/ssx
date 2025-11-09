@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    var _czc = _czc || [];
+    (function () {
+      var um = document.createElement("script");
+      um.src = "https://v1.cnzz.com/z.js?id=1281334347&async=1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(um, s);
+    })();
+  </script>
+  <title>作者叫做权.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --subtext: #4d4d4d;
+      --border: #e5e5e5;
+      --shadow: 0 8px 24px rgba(0,0,0,0.12);
+      --shadow-heavy: 0 20px 48px rgba(0,0,0,0.16);
+      --overlay: rgba(0, 0, 0, 0.4);
+      --accent: #0078d4;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 50%, #dfe7f0 100%);
+      color: var(--text);
+      font-family: "Noto Sans SC", Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+    #popup-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    /* 入场弹窗 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: grid;
+      place-items: center;
+      z-index: 10000;
+    }
+    .modal {
+      width: min(92vw, 520px);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-heavy);
+      text-align: left;
+      overflow: hidden;
+      animation: modal-appear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .modal .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      background: #f3f3f3;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal .titlebar .icon { font-size: 18px; }
+    .modal .titlebar .title { font-weight: 700; }
+    .modal .content { padding: 16px 16px 8px; color: var(--subtext); }
+    .modal .actions { padding: 0 16px 16px; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: .2px;
+      background: #f7f7f7;
+      transition: all 0.2s ease;
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: #0a6ecf; }
+    .btn:hover { filter: brightness(0.98); transform: translateY(-1px); }
+    .btn.primary:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+    
+    /* 屏幕弹窗 */
+    .popup {
+      position: absolute;
+      width: 230px;
+      color: var(--text);
+      background: #ffffff;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 8px 32px rgba(0,0,0,0.08);
+      font-size: 13px;
+      line-height: 1.4;
+      pointer-events: none;
+      user-select: none;
+      transform-origin: center;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .popup .header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #f3f3f3;
+      border-bottom: 1px solid var(--border);
+    }
+    .popup .header .icon { font-size: 12px; }
+    .popup .header .title { font-weight: 800; font-size: 11px; }
+    .popup .content { 
+      padding: 6px 10px; 
+      color: var(--text); 
+      font-size: 18px; 
+      font-weight: 600; 
+      line-height: 1.25; 
+      text-align: center; 
+      transition: transform 0.3s ease;
+    }
+    
+    /* 主题颜色 */
+    .popup.theme-blue .header { background: #e3f2fd; border-bottom-color: #bbdefb; }
+    .popup.theme-blue .content { background: #f1f8ff; }
+    .popup.theme-green .header { background: #e8f5e9; border-bottom-color: #c8e6c9; }
+    .popup.theme-green .content { background: #f1f8f4; }
+    .popup.theme-orange .header { background: #fff3e0; border-bottom-color: #ffe0b2; }
+    .popup.theme-orange .content { background: #fffaf3; }
+    .popup.theme-purple .header { background: #f3e5f5; border-bottom-color: #e1bee7; }
+    .popup.theme-purple .content { background: #faf5fc; }
+    .popup.theme-pink .header { background: #fce4ec; border-bottom-color: #f8bbd0; }
+    .popup.theme-pink .content { background: #fff0f5; }
+    .popup.theme-yellow .header { background: #fffde7; border-bottom-color: #fff9c4; }
+    .popup.theme-yellow .content { background: #fffef7; }
+    .popup.theme-cyan .header { background: #e0f7fa; border-bottom-color: #b2ebf2; }
+    .popup.theme-cyan .content { background: #f0fcff; }
+    
+    @media (max-width: 640px) {
+      .popup { width: min(200px, 85vw); }
+      .popup .content { font-size: 16px; }
+    }
+    
+    /* 动画效果 */
+    @keyframes modal-appear {
+      0% { opacity: 0; transform: scale(0.7) translateY(-20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    /* 弹窗入场动画 */
+    @keyframes popup-from-top {
+      0% { opacity: 0; transform: scale(0.3) translateY(-60px); }
+      60% { opacity: 1; transform: scale(1.08) translateY(0); }
+      80% { transform: scale(0.95) translateY(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes popup-from-bottom {
+      0% { opacity: 0; transform: scale(0.3) translateY(60px); }
+      60% { opacity: 1; transform: scale(1.08) translateY(0); }
+      80% { transform: scale(0.95) translateY(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes popup-from-left {
+      0% { opacity: 0; transform: scale(0.3) translateX(-60px); }
+      60% { opacity: 1; transform: scale(1.08) translateX(0); }
+      80% { transform: scale(0.95) translateX(0); }
+      100% { opacity: 1; transform: scale(1) translateX(0); }
+    }
+    @keyframes popup-from-right {
+      0% { opacity: 0; transform: scale(0.3) translateX(60px); }
+      60% { opacity: 1; transform: scale(1.08) translateX(0); }
+      80% { transform: scale(0.95) translateX(0); }
+      100% { opacity: 1; transform: scale(1) translateX(0); }
+    }
+    
+    /* 动画类 */
+    .anim-top { animation: popup-from-top 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .anim-bottom { animation: popup-from-bottom 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .anim-left { animation: popup-from-left 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .anim-right { animation: popup-from-right 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    
+    /* 雪花效果 */
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: #fff;
+      font-size: 1em;
+      user-select: none;
+      pointer-events: none;
+      z-index: 5;
+    }
+    
+    /* 进度条 */
+    .progress-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 400px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      overflow: hidden;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.2s;
+      border-radius: 3px;
+    }
+    
+    .progress-container.show {
+      opacity: 1;
+    }
+
+    /* 完成提示 */
+    .completion-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: var(--shadow-heavy);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    
+    .completion-message.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="modal-backdrop" id="start-backdrop" aria-hidden="false">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="titlebar">
+          <span class="icon">❄️</span>
+          <span class="title" id="modal-title">温馨提示</span>
+        </div>
+        <div class="content">（必选）这是送给你的一份礼物，你确定要打开吗？</div>
+        <div class="actions">
+          <button class="btn primary" id="confirm-btn" autofocus>确定</button>
+        </div>
+      </div>
+    </div>
+    <div id="popup-layer" aria-live="polite" aria-atomic="false"></div>
+    <div class="progress-container" id="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="completion-message" id="completion-message">
+      <h2>🎉 礼物送达完成！</h2>
+      <p>所有的祝福都已呈现，愿你收获满满的温暖</p>
+    </div>
+  </div>
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="https://sf5-hl-cdn-tos.douyinstatic.com/obj/ies-music/7538982702662699786.mp3" type="audio/mpeg">
+  </audio>
+  <script>
+    // 全局配置 - 大幅优化性能
+    const config = {
+      popupTexts: [
+        '别太累啦，偶尔偷懒也好',
+        '保持微笑呀',
+        '你超棒的',
+        '别熬夜',
+        '我想你了',
+        '加油，未来可期',
+        '平安喜乐',
+        '万事顺意',
+        '天天开心',
+        '好运常在',
+        '被世界温柔以待',
+        '不忘初心',
+        '方得始终',
+        '生活明朗',
+        '万物可爱',
+        '人间值得',
+        '未来可期',
+        '全力以赴',
+        '不负韶华',
+        '顶峰相见',
+        '温暖如初',
+        '喜乐常伴',
+        '健康平安',
+        '顺遂无忧',
+        '金榜题名',
+        '保持好心情',
+        '学会爱自己',
+        '要相信自己奥',
+        '保持热爱',
+        '多喝水奥',
+        '梦想成真',
+        '今天过得开心吗',
+        '天冷了，多穿衣服',
+        '顺顺利利'
+      ],
+      themeClasses: [
+        'theme-blue', 'theme-gre
